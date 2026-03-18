@@ -15,7 +15,7 @@ jobs:
 
       - uses: iffy/install-nim@v5
         with:
-          version: stable
+          version: devel
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
