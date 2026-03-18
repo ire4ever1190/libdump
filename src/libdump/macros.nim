@@ -4,9 +4,9 @@ export macros
 
 proc getObjectDecl*(typ: NimNode): Option[NimNode] =
   ## Looks through an object to get the declaration of it
-  let impl = typ.getTypeImpl()
+  let impl =  typ.getTypeImpl()
   case impl.kind
-  of nnkObjectTy, nnkTupleTy:
+  of nnkObjectTy, nnkTupleTy, nnkTupleConstr:
     some impl
   of nnkRefTy:
     some impl[0]
