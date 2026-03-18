@@ -10,12 +10,16 @@ macro callForEachField(inp: typedesc, fun: untyped): typedesc =
   if decl.isNone:
     echo inp.treeRepr
     "Can't find declaration".error(inp)
-
   proc rec(node: NimNode): NimNode =
     ## Recursive function to rebuild a type but with different fields
     case node.kind
     of nnkIdentDefs:
       return nnkIdentDefs.newTree(node[0], newCall(ident"mapperTmpl", node[1]), node[2])
+    of nnkTupleConstr:
+      # All we have are types, just map them
+      result = nnkTupleConstr.newTree()
+      for son in node:
+        result &= newCall(ident"mapperTmpl", son)
     else:
       if node.canHaveSons:
         result = node.kind.newTree()
