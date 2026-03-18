@@ -21,6 +21,8 @@ suite "Get object decl":
 
     Alias = GenericObj[int]
 
+    Tuple = tuple[a: int, b: string]
+
   macro getObject(x: typedesc): bool =
     return newLit(getObjectDecl(x).isSome())
 
@@ -35,3 +37,47 @@ suite "Get object decl":
 
   test "Generic alias":
     check getObject(Alias)
+
+  test "Tuple":
+    check getObject(Tuple)
+
+suite "Check field default":
+  type
+    MyObj = object
+      noDefault: string
+      hasDefault = "Hello"
+
+  test "Field with no default":
+    check not MyObj.noDefault.hasDefaultValue
+
+
+  # test "Check field with default":
+  #   check MyObj.hasDefault.hasDefaultValue
+
+suite "Find field":
+  type
+    MyObj = object
+      topLevel: string
+      case kind: bool
+      of false:
+        insideVariant: int
+      else:
+        insideElseCase: float
+
+  macro getFieldType(obj: typed, name: static[string]): typedesc =
+    obj.getObjectDecl().get().findField(name).get()[1]
+
+  test "Top level":
+    check MyObj.getFieldType("topLevel") is string
+
+  test "Discriminator":
+    check MyObj.getFieldType("kind") is bool
+
+  test "Inside variant":
+    check MyObj.getFieldType("insideVariant") is int
+
+  test "Inside else case":
+    check MyObj.getFieldType("insideElseCase") is float
+
+  test "Is case insensitive":
+    check MyObj.getFieldType("top_level") is string

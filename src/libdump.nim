@@ -1,3 +1,3 @@
-import ./libdump/macros
+import ./libdump/[macros, types]
 
-export macros
+export macros, types
