@@ -46,3 +46,6 @@ template transformFields*(inputObj: typedesc, mapper: untyped): typedesc =
     mapper
 
   callForEachField(inputObj, mapperTmpl)
+
+type OptionalFields[T] = transformFields(T, Option[T])
+  ## Converts every field in the type to be optional

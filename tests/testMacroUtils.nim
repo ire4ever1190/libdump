@@ -51,8 +51,8 @@ suite "Check field default":
     check not MyObj.noDefault.hasDefaultValue
 
 
-  # test "Check field with default":
-  #   check MyObj.hasDefault.hasDefaultValue
+  test "Check field with default":
+    check MyObj.hasDefault.hasDefaultValue
 
 suite "Find field":
   type
