@@ -52,7 +52,7 @@ proc skipPast*(inp: NimNode, skip: set[NimNodeKind]): NimNode =
 proc isPublic*(inp: NimNode): bool =
   ## Tells whether a node is public or not
   let name = inp.skipPast({nnkPragmaExpr})
-  name.kind == nnkPostFix and name[1].eqIdent("*")
+  name.kind == nnkPostFix and name[0].eqIdent("*")
 
 proc canHaveSons*(inp: NimNode): bool =
   ## Checks whether a node can have sons (i.e. can be safely iterated over).
