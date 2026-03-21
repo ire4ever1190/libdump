@@ -65,7 +65,7 @@ proc public*(inp: NimNode): NimNode =
   of nnkIdent, nnkSym:
     result = nnkPostFix.newTree(ident"*", inp)
   else:
-    "Can't make this public".error(public)
+    "Can't make this public".error(inp)
 
 proc canHaveSons*(inp: NimNode): bool =
   ## Checks whether a node can have sons (i.e. can be safely iterated over).
