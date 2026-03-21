@@ -43,6 +43,17 @@ proc findField*(obj: NimNode, field: string): Option[NimNode] =
     echo obj.treeRepr
     none(NimNode)
 
+proc skipPast*(inp: NimNode, skip: set[NimNodeKind]): NimNode =
+  ## Skips past anything in `skip` by recursing into the first child
+  result = inp
+  while result.kind in skip:
+    result = result[0]
+
+proc isPublic*(inp: NimNode): bool =
+  ## Tells whether a node is public or not
+  let name = inp.skipPast({nnkPragmaExpr})
+  name.kind == nnkPostFix and name[1].eqIdent("*")
+
 proc canHaveSons*(inp: NimNode): bool =
   ## Checks whether a node can have sons (i.e. can be safely iterated over).
   ## This does not check if the node DOES have sons
