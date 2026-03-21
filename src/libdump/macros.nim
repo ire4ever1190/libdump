@@ -6,7 +6,7 @@ proc getObjectDecl*(typ: NimNode): Option[NimNode] =
   ## Looks through an object to get the declaration of it
   let impl =  typ.getTypeImpl()
   case impl.kind
-  of nnkObjectTy, nnkTupleTy, nnkTupleConstr:
+  of nnkObjectTy, nnkTupleTy, nnkTupleConstr, nnkEnumTy:
     some impl
   of nnkRefTy:
     some impl[0]

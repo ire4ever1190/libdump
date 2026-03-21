@@ -23,6 +23,11 @@ suite "Get object decl":
 
     Tuple = tuple[a: int, b: string]
 
+    SomeEnum = enum
+      A
+      B
+      C
+
   macro getObject(x: typedesc): bool =
     return newLit(getObjectDecl(x).isSome())
 
@@ -40,6 +45,9 @@ suite "Get object decl":
 
   test "Tuple":
     check getObject(Tuple)
+
+  test "Enum":
+    check getObject(SomeEnum)
 
 suite "Check field default":
   type
