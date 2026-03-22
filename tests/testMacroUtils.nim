@@ -5,7 +5,7 @@
 #
 # To run these tests, simply execute `nimble test`.
 
-import std/[unittest, options, macros]
+import std/[unittest, options, macros, sugar]
 
 import libdump/macros
 
@@ -89,3 +89,25 @@ suite "Find field":
 
   test "Is case insensitive":
     check MyObj.getFieldType("top_level") is string
+
+suite "Macro navigators":
+  type
+    Parent[T] = object of RootObj
+      name: string
+    Child = object of Parent[string]
+
+  test "Snaking":
+    macro foo(idk: typed): bool =
+      let decl = idk.getObjectDecl().get()
+      echo decl.treeRepr
+      let found = chain(
+        ofKind({nnkObjectTy}),
+        path({
+          1: {nnkOfInherit},
+          0: {nnkBracketExpr},
+          1: {nnkSym, nnkIdent}
+        })
+      )(decl)
+
+      return newLit found.map(x => x.eqIdent("string")).get(false)
+    check foo(Child)

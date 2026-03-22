@@ -1,6 +1,54 @@
-import std/[options, macros, strformat]
+import std/[options, macros, strformat, sugar]
 
 export macros
+
+# TODO: Make nort generic on NimNode
+type Navigator = proc (input: NimNode): Option[NimNode]
+  ## A navigator takes a node and then returns a new node
+
+proc idx*(num: int): Navigator =
+  ## Tries to access an index into a node
+  proc (input: NimNode): Option[NimNode] =
+    if num in 0 ..< input.len:
+      return some input[num]
+
+proc want*(check: proc (inp: NimNode): bool): Navigator =
+  ## Checks that the passed in navigator returns a certain node.
+  ## Doesn't continue if the check fails
+  proc (input: NimNode): Option[NimNode] =
+    if check(input):
+      return some input
+
+proc ofKind*(kind: set[NimNodeKind]): Navigator =
+  want(node => node.kind in kind)
+
+proc need*(msg: proc (inp: NimNode): string, check: proc (inp: NimNode): bool): Navigator =
+  ## Checks that the passed in naviator returns a certain node.
+  ## Errors the node if the check doesn't pass
+  proc (input: NimNode): Option[NimNode] =
+    result = want(check)(input)
+    if result.isNone:
+      msg(input).error(input)
+
+proc chain*(navigators: varargs[Navigator]): Navigator =
+  ## Chains a series of navigators so they run one after another
+  let gators = @navigators
+  proc (input: NimNode): Option[NimNode] =
+    var curr = input
+    for navigator in gators:
+      let next = navigator(curr)
+      echo next.map(x => x.treeRepr)
+      if next.isNone: return none(NimNode)
+      curr = next.get()
+    some curr
+
+proc path*(path: openArray[tuple[idx: int, kinds: set[NimNodeKind]]]): Navigator =
+  ## Works its way through a series of indexs, checking each kind before progressing
+  var checks: seq[Navigator]
+  for (i, kind) in path:
+    checks &= idx(i)
+    checks &= ofKind(kind)
+  return chain(checks)
 
 proc getObjectDecl*(typ: NimNode): Option[NimNode] =
   ## Looks through an object to get the declaration of it
