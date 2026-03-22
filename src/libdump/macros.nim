@@ -37,7 +37,6 @@ proc chain*(navigators: varargs[Navigator]): Navigator =
     var curr = input
     for navigator in gators:
       let next = navigator(curr)
-      echo next.map(x => x.treeRepr)
       if next.isNone: return none(NimNode)
       curr = next.get()
     some curr
