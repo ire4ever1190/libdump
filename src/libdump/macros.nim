@@ -6,7 +6,7 @@ export macros
 type Navigator = proc (input: NimNode): Option[NimNode]
   ## A navigator takes a node and then returns a new node
 
-proc idx*(num: int): Navigator =
+proc idx*(num: int | BackwardsIndex): Navigator =
   ## Tries to access an index into a node
   proc (input: NimNode): Option[NimNode] =
     if num in 0 ..< input.len:
