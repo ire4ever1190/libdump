@@ -9,8 +9,9 @@ type Navigator = proc (input: NimNode): Option[NimNode]
 proc idx*(num: int | BackwardsIndex): Navigator =
   ## Tries to access an index into a node
   proc (input: NimNode): Option[NimNode] =
-    if num in 0 ..< input.len:
-      return some input[num]
+    let idx = when num is int: num else: input.len - int(num)
+    if idx in 0 ..< input.len:
+      return some input[idx]
 
 proc want*(check: proc (inp: NimNode): bool): Navigator =
   ## Checks that the passed in navigator returns a certain node.

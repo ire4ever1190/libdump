@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.4.4"
+version       = "0.4.5"
 author        = "Jake Leahy"
 description   = "Dumping groud of different utilities that I usually used"
 license       = "MIT"
