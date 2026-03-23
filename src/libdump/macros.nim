@@ -19,6 +19,17 @@ proc want*(check: proc (inp: NimNode): bool): Navigator =
     if check(input):
       return some input
 
+proc repeat*(navigator: Navigator): Navigator =
+  ## Chains `navigator` on itself til it fails.
+  ## Returns the final result that passed, matches 0 or more times
+  proc (input: NimNode): Option[NimNode] =
+    var curr = input
+    while true:
+      let next = navigator(curr)
+      if next.isNone:
+        return some curr
+      curr = next.get()
+
 proc ofKind*(kind: set[NimNodeKind]): Navigator =
   want(node => node.kind in kind)
 
