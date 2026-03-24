@@ -38,8 +38,8 @@ template initExampleBlock*(p: string, compileArgs: string): ExampleBlock =
     multiBlock mainExample:
       echo x
 
-  let filePath = Path(instantiationInfo().filename)
-  ExampleBlock(part: p, args: compileArgs & " --path:" & quoteShell($filePath.parentDir), file: $filePath.splitFile().name)
+  let filePath = Path(instantiationInfo(fullPaths=true).filename)
+  ExampleBlock(part: p, args: compileArgs, file: $filePath.splitFile().name)
 
 proc readCode(blk: NimNode): string =
   ## Reads the code from NimNode and returns it as is from the code.
@@ -106,6 +106,7 @@ macro checkMultiBlock*(part: static[ExampleBlock]) =
   let temp = part.file.makeTempFile()
   writeFile(temp.string, output)
   # Check the file with the worst error checking
+  echo fmt"{getCurrentCompilerExe()} check {part.args} {temp}"
   let checkResult = staticExec(fmt"{getCurrentCompilerExe()} check {part.args} {temp}")
   if "Error:" in checkResult:
     raise (ref Defect)(msg: checkResult)
