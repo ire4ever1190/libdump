@@ -2,7 +2,6 @@ import std/[options, macros, strformat, sugar]
 
 export macros
 
-# TODO: Make nort generic on NimNode
 type Navigator = proc (input: NimNode): Option[NimNode]
   ## A navigator takes a node and then returns a new node
 
