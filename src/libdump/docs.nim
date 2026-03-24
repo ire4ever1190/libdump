@@ -64,7 +64,18 @@ proc readCode(blk: NimNode): string =
 
 proc key(e: ExampleBlock): string = e.file & "_" & e.part
 
-macro multiBlock*(part: static[ExampleBlock], body: untyped): untyped =
+macro onlyDocs*(prc: untyped): untyped =
+  ## Sets a function to only have a body when building docs.
+  ## Stubs it out otherwise
+  let stubBody = prc.copy()
+  stubBody[^1] = newStmtList()
+  result = quote do:
+    when defined(docgen) or defined(nimdoc):
+      `prc`
+    else:
+      `stubBody`
+
+macro multiBlock*(part: static[ExampleBlock], body: untyped): untyped {.onlyDocs.} =
   ## Allows you to break up code over multiple blocks, which
   ## can then be checked and outputted in a full block
   let key = part.key()
@@ -92,7 +103,7 @@ proc makeTempFile(fileName: string | Path): Path =
   let exampleNum = counter.value
   appdirs.getTempDir() / Path fmt"temp{fileName}_{exampleNum}.nim"
 
-macro checkMultiBlock*(part: static[ExampleBlock]) =
+macro checkMultiBlock*(part: static[ExampleBlock]) {.onlyDocs.} =
   ## Should be called at the end of the blocks.
   ## This compiles the code and checks it works
   let key = part.key()
