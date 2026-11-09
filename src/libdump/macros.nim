@@ -162,7 +162,7 @@ macro hasDefaultValue*(n: typed): bool =
 
   let
     objDecl = objectDecl.get()
-    fieldDecl = if field.kind == nnkIdent: objDecl.findField($field) else: objDecl.findField(field.intVal)
+    fieldDecl = if field.kind in {nnkIdent, nnkSym}: objDecl.findField($field) else: objDecl.findField(field.intVal)
   if fieldDecl.isNone:
     error(fmt"Unknown field '{field}' in {obj}")
 
