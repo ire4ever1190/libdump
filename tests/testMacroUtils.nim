@@ -62,6 +62,12 @@ suite "Check field default":
   test "Check field with default":
     check MyObj.hasDefault.hasDefaultValue
 
+  test "Test tuple with default":
+    type Tup = tuple[name = "Hello", test: int]
+    let test = default(Tup)
+    check test[0].hasDefaultValue()
+    check not test[1].hasDefaultValue()
+
 suite "Find field":
   type
     MyObj = object
@@ -73,6 +79,9 @@ suite "Find field":
         insideElseCase: float
 
   macro getFieldType(obj: typed, name: static[string]): typedesc =
+    obj.getObjectDecl().get().findField(name).get()[1]
+
+  macro getFieldType(obj: typed, name: static[int]): typedesc =
     obj.getObjectDecl().get().findField(name).get()[1]
 
   test "Top level":
@@ -89,6 +98,14 @@ suite "Find field":
 
   test "Is case insensitive":
     check MyObj.getFieldType("top_level") is string
+
+  test "Tuple":
+    type Tup = tuple[name: string]
+    check Tup.getFieldType(0) is string
+
+  test "Tuple sharing type":
+    type Tup = tuple[name, location: string]
+    check Tup.getFieldType(1) is string
 
 suite "Macro navigators":
   type

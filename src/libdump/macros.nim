@@ -101,6 +101,14 @@ proc findField*(obj: NimNode, field: string): Option[NimNode] =
     echo obj.treeRepr
     none(NimNode)
 
+proc findField*(obj: NimNode, idx: int): Option[NimNode] =
+  ## Returns the identDef for an index inside a tuple
+  case obj.kind
+  of nnkTupleTy:
+    return some obj[idx]
+  else:
+    none(NimNode)
+
 proc skipPast*(inp: NimNode, skip: set[NimNodeKind]): NimNode =
   ## Skips past anything in `skip` by recursing into the first child
   result = inp
@@ -142,18 +150,20 @@ macro hasDefaultValue*(n: typed): bool =
     assert MyObj.hasDefault.hasDefaultValue
     assert MyObj.alsoHasDefault.hasDefaultValue
 
-  if n.kind != nnkDotExpr:
-    error("Expected parameter to be in `Object.fieldName` format", n)
+  if n.kind notin {nnkDotExpr, nnkBracketExpr}:
+    error("Expected parameter to be in `Object.fieldName` or `tuple[idx]` format", n)
   let
     obj = n[0]
     field = n[1]
   let objectDecl = obj.getObjectDecl()
-  echo objectDecl.get().treeRepr
   if objectDecl.isNone:
     error(fmt"Could not find object declaration for {obj}", obj)
 
-  let fieldDecl = objectDecl.get().findField($field)
+
+  let
+    objDecl = objectDecl.get()
+    fieldDecl = if field.kind == nnkIdent: objDecl.findField($field) else: objDecl.findField(field.intVal)
   if fieldDecl.isNone:
     error(fmt"Unknown field '{field}' in {obj}")
-  echo fieldDecl.get().treeRepr
+
   return newLit fieldDecl.get()[2].kind != nnkEmpty
